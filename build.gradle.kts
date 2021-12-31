@@ -1,8 +1,8 @@
 plugins {
     application
     id("dev.fritz2.fritz2-gradle") version "0.11"
-    kotlin("plugin.serialization") version "1.5.10"
-    kotlin("multiplatform") version "1.5.10"
+    kotlin("plugin.serialization") version "1.5.32"
+    kotlin("multiplatform") version "1.5.32"
     id("idea")
 }
 
@@ -15,7 +15,6 @@ repositories {
 }
 
 application {
-    //mainClassName = "app.backend.ServerKt"
     mainClass.set("app.backend.ServerKt")
 }
 
@@ -35,7 +34,7 @@ kotlin {
 
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "11"
         }
         testRuns["test"].executionTask.configure {
             useJUnit()
@@ -43,10 +42,10 @@ kotlin {
     }
 
     sourceSets {
-        val ktorVersion = "1.6.0"
-        val logbackVersion = "1.2.3"
+        val ktorVersion = "1.6.7"
+        val logbackVersion = "1.2.10"
         val serializationVersion = "1.2.1"
-        val exposedVersion = "0.32.1"
+        val exposedVersion = "0.37.3"
         val h2Version = "1.4.200"
 
         val commonMain by getting {
