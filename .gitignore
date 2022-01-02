@@ -4,6 +4,8 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
 !**/src/test/**
+*.mv.db
+yarn.lock
 
 ### STS ###
 .apt_generated

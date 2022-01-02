@@ -1,6 +1,6 @@
 plugins {
     application
-    id("dev.fritz2.fritz2-gradle") version "0.11"
+    id("dev.fritz2.fritz2-gradle") version "0.13"
     kotlin("plugin.serialization") version "1.5.32"
     kotlin("multiplatform") version "1.5.32"
     id("idea")
@@ -77,6 +77,9 @@ kotlin {
             }
         }
         val jsMain by getting {
+            dependencies {
+                implementation("dev.fritz2:components:0.13")
+            }
         }
         val jsTest by getting {
             dependencies {
@@ -89,7 +92,8 @@ kotlin {
 tasks {
     getByName<ProcessResources>("jvmProcessResources") {
         dependsOn(getByName("jsBrowserProductionWebpack"))
-        val jsBrowserProductionWebpack = getByName<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBrowserProductionWebpack")
+        val jsBrowserProductionWebpack =
+            getByName<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("jsBrowserProductionWebpack")
         from(File(jsBrowserProductionWebpack.destinationDirectory, jsBrowserProductionWebpack.outputFileName))
     }
 

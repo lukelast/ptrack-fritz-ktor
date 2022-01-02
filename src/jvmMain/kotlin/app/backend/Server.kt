@@ -1,9 +1,9 @@
 package app.backend
 
-import app.database.ToDoDB
-import app.database.ToDosTable
+import app.database.Db
+import app.database.ActTable
 import app.database.database
-import app.model.ToDo
+import app.model.ActDto
 import app.model.ToDoValidator
 import io.ktor.application.*
 import io.ktor.features.*
@@ -29,10 +29,10 @@ fun Application.main() {
         json()
     }
 
-    Database.connect("jdbc:h2:mem:regular;DB_CLOSE_DELAY=-1;", "org.h2.Driver")
+    Database.connect("jdbc:h2:./ptdb", "org.h2.Driver")
 
     database {
-        SchemaUtils.create(ToDosTable)
+        SchemaUtils.create(ActTable)
     }
 
     routing {
@@ -50,39 +50,39 @@ fun Application.main() {
 
             get("/todos") {
                 environment.log.info("getting all ToDos")
-                call.respond(ToDoDB.all())
+                call.respond(Db.all())
             }
 
             post("/todos") {
-                val toDo = call.receive<ToDo>()
-                if (validator.isValid(toDo, Unit)) {
-                    environment.log.info("save new ToDo: $toDo")
-                    call.respond(HttpStatusCode.Created, ToDoDB.add(toDo))
+                val actDto = call.receive<ActDto>()
+                if (validator.isValid(actDto, Unit)) {
+                    environment.log.info("save new ToDo: $actDto")
+                    call.respond(HttpStatusCode.Created, Db.add(actDto))
                 } else {
                     call.respond(HttpStatusCode.BadRequest, mapOf("error" to "data is not valid"))
                 }
             }
 
             put("/todos/{id}") {
-                val oldToDo = call.parameters["id"]?.toLongOrNull()?.let { ToDoDB.find(it) }
-                val newToDo = call.receive<ToDo>()
+                val oldToDo = call.parameters["id"]?.toLongOrNull()?.let { Db.find(it) }
+                val newActDto = call.receive<ActDto>()
                 if (oldToDo == null) {
                     call.respond(HttpStatusCode.BadRequest, mapOf("error" to "invalid id"))
-                } else if (!validator.isValid(newToDo, Unit)) {
+                } else if (!validator.isValid(newActDto, Unit)) {
                     call.respond(HttpStatusCode.BadRequest, mapOf("error" to "data is not valid"))
                 } else {
-                    environment.log.info("update ToDo[id=${oldToDo.id.value}] to: $newToDo")
-                    call.respond(HttpStatusCode.Created, ToDoDB.update(oldToDo, newToDo.copy(id = oldToDo.id.value)))
+                    environment.log.info("update ToDo[id=${oldToDo.id.value}] to: $newActDto")
+                    call.respond(HttpStatusCode.Created, Db.update(oldToDo, newActDto.copy(id = oldToDo.id.value)))
                 }
             }
 
             delete("/todos/{id}") {
-                val oldToDo = call.parameters["id"]?.toLongOrNull()?.let { ToDoDB.find(it) }
+                val oldToDo = call.parameters["id"]?.toLongOrNull()?.let { Db.find(it) }
                 if (oldToDo == null) {
                     call.respond(HttpStatusCode.BadRequest, mapOf("error" to "invalid id"))
                 } else {
                     environment.log.info("remove ToDo with id: ${oldToDo.id.value}")
-                    call.respond(HttpStatusCode.OK, ToDoDB.remove(oldToDo))
+                    call.respond(HttpStatusCode.OK, Db.remove(oldToDo))
                 }
             }
         }
