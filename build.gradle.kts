@@ -25,7 +25,7 @@ kotlin {
                 devServer = devServer?.copy(
                     port = 9000,
                     proxy = mutableMapOf(
-                        "/api/todos" to "http://localhost:8080"
+                        "/api/todos" to "http://localhost:8181"
                     )
                 )
             }

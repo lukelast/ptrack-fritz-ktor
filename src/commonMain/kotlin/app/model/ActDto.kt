@@ -25,11 +25,11 @@ enum class ActType(
     val id: Short,
     val description: String,
 ) {
-    PEE(1, "Pee"),
-    POO(2, "Poop"),
+    PEE(1, "Pee 拉尿"),
+    POO(2, "Poop 拉屎"),
 
-    FOOD(10, "Food"),
-    WATER(11, "Water"),
+    FOOD(10, "Food 吃饭"),
+    WATER(11, "Water 喝水"),
 
     EXERCISE(20, "Exercise"),
 

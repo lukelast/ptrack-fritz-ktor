@@ -18,6 +18,7 @@ object ActTable : LongIdTable() {
     val time = long("time")
     val type = short("completed")
     val text = varchar("text", validator.maxTextLength)
+    val size = short("size").default(0)
 }
 
 class ActEntity(id: EntityID<Long>) : LongEntity(id) {
@@ -26,6 +27,7 @@ class ActEntity(id: EntityID<Long>) : LongEntity(id) {
     var time by ActTable.time
     var type by ActTable.type
     var text by ActTable.text
+    var size by ActTable.size
 
 
     fun toDto() = ActDto(
@@ -54,6 +56,7 @@ object Db {
             text = actDto.text
             type = actDto.type.id
             time = actDto.time.toEpochMilliseconds()
+            size = 0
         }.toDto()
     }
 

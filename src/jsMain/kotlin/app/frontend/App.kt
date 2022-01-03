@@ -24,6 +24,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.js.Date
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -55,22 +56,14 @@ object ActListStore : RootStore<List<ActDto>>(emptyList(), id = "acts") {
     }
 }
 
-fun RenderContext.filter(text: String, route: String) {
-    li {
-        a {
-            className(router.data.map { if (it == route) "selected" else "" })
-            href("#$route")
-            +text
-        }
-    }
-}
 
 @ExperimentalCoroutinesApi
 fun RenderContext.createActButton(type: ActType, close: SimpleHandler<Unit>) {
     clickButton({
-        margin { "16px" }
+        margin { "1rem" }
         fontSize { "2rem" }
         padding { "2rem" }
+        minWidth { "16rem" }
     }) {
         text(type.description)
         type {
@@ -87,7 +80,7 @@ fun ActType.toColorScheme(): ColorScheme = when (this) {
     ActType.PEE -> ColorScheme("yellow", "black", "#cae4ea", "#2d3748")
     ActType.POO -> ColorScheme("saddlebrown", "white", "#cae4ea", "#2d3748")
     ActType.WATER -> ColorScheme("skyblue", "black", "#cae4ea", "#2d3748")
-    ActType.FOOD -> ColorScheme("darkgreen", "white", "#cae4ea", "#2d3748")
+    ActType.FOOD -> ColorScheme("deeppink", "black", "#cae4ea", "#2d3748")
 
     ActType.ACCIDENT_PEE -> Theme().button.types.danger
     ActType.ACCIDENT_POO -> Theme().button.types.danger
@@ -105,13 +98,12 @@ fun RenderContext.inputHeader() {
     }
 
     header(headerStyle.name) {
-//        h2 { ClockStore.data.asText() }
 
 
         clickButton({
             margin { "32px" }
         }) {
-            text("Add Activity")
+            text("Add Activity 新的")
 
         } handledBy modal {
             closeButtonStyle {
@@ -120,7 +112,7 @@ fun RenderContext.inputHeader() {
             width { large }
             placement { stretch }
             content { close ->
-                h1 { +"Add new activity" }
+                h1(style { margin { "1rem" } }.name) { +"Add new activity 新的" }
                 ActType.values().forEach { createActButton(it, close) }
             }
         }
@@ -161,9 +153,12 @@ fun RenderContext.mainSection() {
 
                 for (i in 1..100) {
                     tr(trStyle.name) {
-
-                        //td { +i.toString() }
-                        td { +toHourMin(time) }
+                        val hourMin = toHourMin(time)
+                        if (hourMin.endsWith(":00")) {
+                            td(style { fontWeight { bold } }.name) { +hourMin }
+                        } else {
+                            td { +hourMin }
+                        }
                         td {
                             for (dto in dtos) {
                                 val nowLimit = Clock.System.now().minus(Duration.minutes(10))
@@ -179,7 +174,8 @@ fun RenderContext.mainSection() {
                                         margin { "8px" }
                                         padding { "8px" }
                                         lineHeight { "1rem" }
-                                        minWidth { "64px" }
+                                        minWidth { "128px" }
+                                        height { unset }
                                     }) {
                                         text(dto.type.description)
                                         type {
@@ -235,9 +231,13 @@ fun main() {
     window.setInterval({
         ClockStore.update(toHourMin(Clock.System.now()))
     }, 1_000)
+
     window.setInterval({
-        document.location?.reload()
-    }, 1_000 * 60 * 2)
+        val min = Date().getMinutes()
+        if (min == 0 || min == 1) {
+            document.location?.reload()
+        }
+    }, 1_000 * 60)
 
 
     render("#todoapp") {

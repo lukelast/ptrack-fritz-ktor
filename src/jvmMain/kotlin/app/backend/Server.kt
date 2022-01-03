@@ -90,7 +90,7 @@ fun Application.main() {
 }
 
 fun main() {
-    val port = System.getenv("PORT")?.toInt() ?: 8080
+    val port = System.getenv("PORT")?.toInt() ?: 8181
     embeddedServer(Netty, port = port) {
         main()
     }.start(wait = true)
