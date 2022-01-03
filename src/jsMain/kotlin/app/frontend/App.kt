@@ -77,10 +77,12 @@ fun RenderContext.createActButton(type: ActType, close: SimpleHandler<Unit>) {
 
 @ExperimentalCoroutinesApi
 fun ActType.toColorScheme(): ColorScheme = when (this) {
-    ActType.PEE -> ColorScheme("yellow", "black", "#cae4ea", "#2d3748")
-    ActType.POO -> ColorScheme("saddlebrown", "white", "#cae4ea", "#2d3748")
+    ActType.PEE -> ColorScheme("yellow", "black", "#ffffcc", "black")
+    ActType.POO -> ColorScheme("#663300", "white", "#ffcc99", "black")
     ActType.WATER -> ColorScheme("skyblue", "black", "#cae4ea", "#2d3748")
-    ActType.FOOD -> ColorScheme("deeppink", "black", "#cae4ea", "#2d3748")
+    ActType.FOOD -> ColorScheme("#e6005c", "white", "#ffb3d1", "black")
+
+    ActType.EXERCISE -> ColorScheme("#006600", "white", "#ccffcc", "black")
 
     ActType.ACCIDENT_PEE -> Theme().button.types.danger
     ActType.ACCIDENT_POO -> Theme().button.types.danger
@@ -133,7 +135,7 @@ fun RenderContext.mainSection() {
     section("cal") {
         ActListStore.data.render { dtos ->
             println(dtos)
-            table {
+            table(style { margins { left { "8px" } } }.name) {
 
                 var time = Clock.System.now()
                 val local = time.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -142,8 +144,11 @@ fun RenderContext.mainSection() {
 
                 val trStyle = style {
                     fontSize { "1.5rem" }
-                    border {
-                        width { thin }
+                    borders {
+                        top {
+                            width { thin }
+                        }
+                        bottom { width { thin } }
                     }
                 }
                 val timeStyle = style { fontWeight { bold } }
@@ -239,8 +244,7 @@ fun main() {
         }
     }, 1_000 * 60)
 
-
-    render("#todoapp") {
+    render("#app") {
         inputHeader()
         mainSection()
     }

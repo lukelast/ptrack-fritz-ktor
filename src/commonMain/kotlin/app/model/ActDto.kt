@@ -31,11 +31,11 @@ enum class ActType(
     FOOD(10, "Food 吃饭"),
     WATER(11, "Water 喝水"),
 
-    EXERCISE(20, "Exercise"),
+    EXERCISE(20, "Exercise 锻炼"),
 
     ACCIDENT_PEE(100, "Accident (Pee)"),
     ACCIDENT_POO(101, "Accident (Poop)"),
-    ACCIDENT_VOMIT(102, "Accident (Vomit)"),
+    ACCIDENT_VOMIT(102, "Vomit"),
 }
 
 fun idToActType(id: Short): ActType = ActType.values().single { it.id == id }
