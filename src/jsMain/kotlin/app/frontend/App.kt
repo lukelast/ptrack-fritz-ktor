@@ -233,7 +233,7 @@ fun main() {
     }, 1_000)
 
     window.setInterval({
-        val min = Date().getMinutes()
+        val min = Date().getMinutes() % 10
         if (min == 0 || min == 1) {
             document.location?.reload()
         }
