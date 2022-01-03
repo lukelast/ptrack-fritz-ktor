@@ -6,12 +6,12 @@ plugins {
     id("idea")
 }
 
-group = "dev.fritz2"
+group = "net.ghue"
 version = "1.0"
 
 repositories {
     mavenCentral()
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+    //maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 }
 
 application {
@@ -46,11 +46,12 @@ kotlin {
         val logbackVersion = "1.2.10"
         val serializationVersion = "1.2.1"
         val exposedVersion = "0.37.3"
-        val h2Version = "1.4.200"
+        val h2Version = "2.0.204"
 
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.1")
             }
         }
         val commonTest by getting {

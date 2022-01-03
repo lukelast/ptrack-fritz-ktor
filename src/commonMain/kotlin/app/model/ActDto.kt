@@ -1,12 +1,13 @@
 package app.model
 
 import dev.fritz2.identification.Inspector
-import dev.fritz2.identification.inspect
 import dev.fritz2.lenses.IdProvider
 import dev.fritz2.lenses.Lenses
 import dev.fritz2.resource.Resource
 import dev.fritz2.validation.ValidationMessage
 import dev.fritz2.validation.Validator
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -15,9 +16,29 @@ import kotlinx.serialization.json.Json
 @Serializable
 data class ActDto(
     val id: Long = -1,
-    val text: String = "",
-    val completed: Boolean = false
+    val time: Instant = Clock.System.now(),
+    val type: ActType,
+    val text: String = type.description,
 )
+
+enum class ActType(
+    val id: Short,
+    val description: String,
+) {
+    PEE(1, "Pee"),
+    POO(2, "Poop"),
+
+    FOOD(10, "Food"),
+    WATER(11, "Water"),
+
+    EXERCISE(20, "Exercise"),
+
+    ACCIDENT_PEE(100, "Accident (Pee)"),
+    ACCIDENT_POO(101, "Accident (Poop)"),
+    ACCIDENT_VOMIT(102, "Accident (Vomit)"),
+}
+
+fun idToActType(id: Short): ActType = ActType.values().single { it.id == id }
 
 data class ToDoMessage(val id: String, val text: String) : ValidationMessage {
     override fun isError(): Boolean = true
