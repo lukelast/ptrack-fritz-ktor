@@ -13,7 +13,7 @@ import dev.fritz2.dom.html.RenderContext
 import dev.fritz2.dom.html.render
 import dev.fritz2.repositories.rest.restQuery
 import dev.fritz2.routing.router
-import dev.fritz2.styling.style
+import dev.fritz2.styling.*
 import dev.fritz2.styling.theme.ColorScheme
 import dev.fritz2.styling.theme.Theme
 import kotlinx.browser.document
@@ -32,6 +32,9 @@ import kotlin.time.ExperimentalTime
 const val endpoint = "/api/todos"
 val validator = ToDoValidator()
 val router = router("all")
+
+@ExperimentalTime
+val period = Duration.minutes(10)
 
 object ClockStore : RootStore<String>("clock")
 
@@ -88,33 +91,29 @@ fun ActType.toColorScheme(): ColorScheme = when (this) {
     ActType.ACCIDENT_POO -> Theme().button.types.danger
 
     ActType.ACCIDENT_VOMIT -> ColorScheme("yellowgreen", "black", "#cae4ea", "#2d3748")
-    else -> Theme().button.types.primary
+    //else -> Theme().button.types.primary
 }
 
 
 @ExperimentalCoroutinesApi
 fun RenderContext.inputHeader() {
 
-    val headerStyle = style {
-        position { absolute { right { "0" } } }
-    }
-
-    header(headerStyle.name) {
-
+    header({ position { absolute { right { "0" } } } }) {
 
         clickButton({
-            margin { "32px" }
+            margin { large }
+            fontSize { larger }
         }) {
             text("Add Activity 新的")
 
         } handledBy modal {
             closeButtonStyle {
-                fontSize { "2rem" }
+                fontSize { larger }
             }
             width { large }
             placement { stretch }
             content { close ->
-                h1(style { margin { "1rem" } }.name) { +"Add new activity 新的" }
+                h1({ margin { normal } }) { +"Add new activity 新的" }
                 ActType.values().forEach { createActButton(it, close) }
             }
         }
@@ -132,15 +131,14 @@ fun toHourMin(time: Instant): String {
 @ExperimentalTime
 @ExperimentalCoroutinesApi
 fun RenderContext.mainSection() {
-    section("cal") {
+    section {
         ActListStore.data.render { dtos ->
-            println(dtos)
-            table(style { margins { left { "8px" } } }.name) {
+            table({ margins { left { smaller } } }) {
 
                 var time = Clock.System.now()
                 val local = time.toLocalDateTime(TimeZone.currentSystemDefault())
                 time = time.minus(Duration.seconds(local.second))
-                time = time.minus(Duration.minutes(local.minute % 10))
+                time = time.minus(Duration.minutes(local.minute % period.inWholeMinutes))
 
                 val trStyle = style {
                     fontSize { "1.5rem" }
@@ -151,8 +149,7 @@ fun RenderContext.mainSection() {
                         bottom { width { thin } }
                     }
                 }
-                val timeStyle = style { fontWeight { bold } }
-                tr(trStyle.plus(timeStyle).name) {
+                tr(trStyle.plus(style { fontWeight { bold } }).name) {
                     td { ClockStore.data.asText() }
                 }
 
@@ -160,18 +157,20 @@ fun RenderContext.mainSection() {
                     tr(trStyle.name) {
                         val hourMin = toHourMin(time)
                         if (hourMin.endsWith(":00")) {
-                            td(style { fontWeight { bold } }.name) { +hourMin }
+                            td({ fontWeight { bold } }) { +hourMin }
                         } else {
                             td { +hourMin }
                         }
                         td {
                             for (dto in dtos) {
-                                val nowLimit = Clock.System.now().minus(Duration.minutes(10))
-                                var top = time.plus(Duration.minutes(5))
-                                if (nowLimit.toEpochMilliseconds() < time.toEpochMilliseconds()) {
-                                    top = Clock.System.now()
-                                }
-                                val bottom = time.minus(Duration.minutes(5))
+                                val nowLimit = Clock.System.now().minus(period)
+                                val top =
+                                    if (nowLimit.toEpochMilliseconds() < time.toEpochMilliseconds()) {
+                                        Clock.System.now()
+                                    } else {
+                                        time.plus(period.div(2))
+                                    }
+                                val bottom = time.minus(period.div(2))
                                 if (dto.time.toEpochMilliseconds() <= top.toEpochMilliseconds() &&
                                     bottom.toEpochMilliseconds() < dto.time.toEpochMilliseconds()
                                 ) {
@@ -191,7 +190,7 @@ fun RenderContext.mainSection() {
                             }
                         }
                     }
-                    time = time.minus(Duration.minutes(10))
+                    time = time.minus(period)
                 }
             }
 
@@ -202,8 +201,8 @@ fun RenderContext.mainSection() {
 
 
 
-    section("main") {
-        ul("todo-list") {
+    section({ display { none } }) {
+        ul {
 
             ActListStore.data.renderEach(ActDto::id) { act ->
 
@@ -238,7 +237,7 @@ fun main() {
     }, 1_000)
 
     window.setInterval({
-        val min = Date().getMinutes() % 10
+        val min = Date().getMinutes() % period.inWholeMinutes.toInt()
         if (min == 0 || min == 1) {
             document.location?.reload()
         }
