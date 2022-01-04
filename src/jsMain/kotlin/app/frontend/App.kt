@@ -1,8 +1,8 @@
 package app.frontend
 
 import app.model.ActDto
+import app.model.ActResource
 import app.model.ActType
-import app.model.ToDoResource
 import app.model.ToDoValidator
 import dev.fritz2.binding.RootStore
 import dev.fritz2.binding.SimpleHandler
@@ -26,6 +26,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.js.Date
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 
 
@@ -41,9 +42,9 @@ object ClockStore : RootStore<String>("clock")
 
 object ActListStore : RootStore<List<ActDto>>(emptyList(), id = "acts") {
 
-    private val restRepo = restQuery<ActDto, Long, Unit>(ToDoResource, endpoint, -1)
+    private val restRepo = restQuery<ActDto, Long, Unit>(ActResource, endpoint, -1)
 
-    private val query = handle { restRepo.query(Unit) }
+    val query = handle { restRepo.query(Unit) }
 
     val save = handle<ActDto> { toDos, new ->
         if (validator.isValid(new, Unit)) restRepo.addOrUpdate(toDos, new)
@@ -94,18 +95,23 @@ fun ActType.toColorScheme(): ColorScheme = when (this) {
     //else -> Theme().button.types.primary
 }
 
-
+@ExperimentalTime
 @ExperimentalCoroutinesApi
-fun RenderContext.inputHeader() {
+fun RenderContext.rightSide() {
 
-    header({ position { absolute { right { "0" } } } }) {
+    header({
+        position { absolute { right { "0" } } }
+        textAlign { right }
+        margin { large }
+    }) {
 
         clickButton({
-            margin { large }
-            fontSize { larger }
+            margins { bottom { normal } }
+            fontSize { giant }
+            paddings { bottom { small } }
+            height { auto }
         }) {
-            text("Add Activity 新的")
-
+            text("+")
         } handledBy modal {
             closeButtonStyle {
                 fontSize { larger }
@@ -117,6 +123,31 @@ fun RenderContext.inputHeader() {
                 ActType.values().forEach { createActButton(it, close) }
             }
         }
+
+        ActListStore.data.render { acts ->
+            ActType.values()
+                .filter { it != ActType.ACCIDENT_VOMIT }
+                .mapNotNull { type -> acts.firstOrNull { it.type == type } }
+                .forEach { act ->
+                    p({
+                        fontSize { large }
+                        margins { top { normal } }
+                        borders {
+                            bottom {
+                                width { normal }
+                                color { act.type.toColorScheme().main }
+                            }
+                        }
+                    })
+                    {
+                        val time = Clock.System.now()
+                        val since = time.minus(act.time)
+                        +"${act.type.description}: "
+                        b { +since.toString(DurationUnit.HOURS, 1) }
+                    }
+                }
+        }
+
     }
 }
 
@@ -143,10 +174,7 @@ fun RenderContext.mainSection() {
                 val trStyle = style {
                     fontSize { "1.5rem" }
                     borders {
-                        top {
-                            width { thin }
-                        }
-                        bottom { width { thin } }
+                        bottom { width { hair } }
                     }
                 }
                 tr(trStyle.plus(style { fontWeight { bold } }).name) {
@@ -234,7 +262,11 @@ fun RenderContext.mainSection() {
 fun main() {
     window.setInterval({
         ClockStore.update(toHourMin(Clock.System.now()))
-    }, 1_000)
+    }, 5_000)
+
+    window.setInterval({
+        ActListStore.query()
+    }, 10_000)
 
     window.setInterval({
         val min = Date().getMinutes() % period.inWholeMinutes.toInt()
@@ -244,7 +276,7 @@ fun main() {
     }, 1_000 * 60)
 
     render("#app") {
-        inputHeader()
+        rightSide()
         mainSection()
     }
 }

@@ -73,7 +73,7 @@ class ToDoValidator : Validator<ActDto, ToDoMessage, Unit>() {
 
 }
 
-object ToDoResource : Resource<ActDto, Long> {
+object ActResource : Resource<ActDto, Long> {
     override val idProvider: IdProvider<ActDto, Long> = ActDto::id
     override fun deserialize(source: String): ActDto = Json.decodeFromString(ActDto.serializer(), source)
     override fun deserializeList(source: String): List<ActDto> =

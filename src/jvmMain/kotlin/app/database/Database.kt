@@ -41,6 +41,7 @@ class ActEntity(id: EntityID<Long>) : LongEntity(id) {
 object Db {
 
     fun find(id: Long): ActEntity? = database {
+        addLogger(StdOutSqlLogger)
         ActEntity.findById(id)
     }
 
@@ -52,6 +53,7 @@ object Db {
     }
 
     fun add(actDto: ActDto): ActDto = database {
+        addLogger(StdOutSqlLogger)
         ActEntity.new {
             text = actDto.text
             type = actDto.type.id
@@ -61,19 +63,20 @@ object Db {
     }
 
     fun update(old: ActEntity, new: ActDto): ActDto = database {
+        addLogger(StdOutSqlLogger)
         old.text = new.text
         old.type = new.type.id
         new
     }
 
     fun remove(toDelete: ActEntity) = database {
+        addLogger(StdOutSqlLogger)
         toDelete.delete()
     }
 }
 
 fun <T> database(statement: Transaction.() -> T): T {
     return transaction {
-        addLogger(StdOutSqlLogger)
         statement()
     }
 }

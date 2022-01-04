@@ -49,7 +49,7 @@ fun Application.main() {
         route("/api") {
 
             get("/todos") {
-                environment.log.info("getting all ToDos")
+                //environment.log.info("getting all ToDos")
                 call.respond(Db.all())
             }
 
