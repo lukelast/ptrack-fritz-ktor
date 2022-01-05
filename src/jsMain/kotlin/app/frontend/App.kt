@@ -16,7 +16,6 @@ import dev.fritz2.routing.router
 import dev.fritz2.styling.*
 import dev.fritz2.styling.theme.ColorScheme
 import dev.fritz2.styling.theme.Theme
-import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
@@ -64,10 +63,10 @@ object ActListStore : RootStore<List<ActDto>>(emptyList(), id = "acts") {
 @ExperimentalCoroutinesApi
 fun RenderContext.createActButton(type: ActType, close: SimpleHandler<Unit>) {
     clickButton({
-        margin { "1rem" }
-        fontSize { "2rem" }
-        padding { "2rem" }
-        minWidth { "16rem" }
+        margin { large }
+        fontSize { huge }
+        padding { huge }
+        minWidth { "18rem" }
     }) {
         text(type.description)
         type {
@@ -106,18 +105,19 @@ fun RenderContext.rightSide() {
     }) {
 
         clickButton({
-            margins { bottom { normal } }
+            //margins { bottom { normal } }
+            margin { huge }
             fontSize { giant }
-            paddings { bottom { small } }
-            height { auto }
+            width { "5rem" }
+            height { "5rem" }
         }) {
             text("+")
         } handledBy modal {
             closeButtonStyle {
-                fontSize { larger }
+                fontSize { giant }
             }
-            width { large }
-            placement { stretch }
+            width { "85vw" }
+            placement { center }
             content { close ->
                 h1({ margin { normal } }) { +"Add new activity 新的" }
                 ActType.values().forEach { createActButton(it, close) }
@@ -130,11 +130,11 @@ fun RenderContext.rightSide() {
                 .mapNotNull { type -> acts.firstOrNull { it.type == type } }
                 .forEach { act ->
                     p({
-                        fontSize { large }
-                        margins { top { normal } }
+                        fontSize { larger }
+                        margins { top { huge } }
                         borders {
                             bottom {
-                                width { normal }
+                                width { fat }
                                 color { act.type.toColorScheme().main }
                             }
                         }
@@ -164,7 +164,10 @@ fun toHourMin(time: Instant): String {
 fun RenderContext.mainSection() {
     section {
         ActListStore.data.render { dtos ->
-            table({ margins { left { smaller } } }) {
+            table({
+                width { "60vw" }
+                margins { left { smaller } }
+            }) {
 
                 var time = Clock.System.now()
                 val local = time.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -172,13 +175,16 @@ fun RenderContext.mainSection() {
                 time = time.minus(Duration.minutes(local.minute % period.inWholeMinutes))
 
                 val trStyle = style {
-                    fontSize { "1.5rem" }
+                    fontSize { large }
                     borders {
                         bottom { width { hair } }
                     }
+                    position { relative { } }
                 }
                 tr(trStyle.plus(style { fontWeight { bold } }).name) {
-                    td { ClockStore.data.asText() }
+                    td({
+                        width { "56px" }
+                    }) { ClockStore.data.asText() }
                 }
 
                 for (i in 1..100) {
@@ -189,7 +195,12 @@ fun RenderContext.mainSection() {
                         } else {
                             td { +hourMin }
                         }
-                        td {
+                        td({
+                            display { flex }
+                            height { "100%" }
+                            position { absolute { } }
+                            alignItems { center }
+                        }) {
                             for (dto in dtos) {
                                 val nowLimit = Clock.System.now().minus(period)
                                 val top =
@@ -198,21 +209,21 @@ fun RenderContext.mainSection() {
                                     } else {
                                         time.plus(period.div(2))
                                     }
-                                val bottom = time.minus(period.div(2))
+                                val bottomTime = time.minus(period.div(2))
                                 if (dto.time.toEpochMilliseconds() <= top.toEpochMilliseconds() &&
-                                    bottom.toEpochMilliseconds() < dto.time.toEpochMilliseconds()
+                                    bottomTime.toEpochMilliseconds() < dto.time.toEpochMilliseconds()
                                 ) {
-                                    clickButton({
-                                        margin { "8px" }
-                                        padding { "8px" }
-                                        lineHeight { "1rem" }
+                                    div({
                                         minWidth { "128px" }
-                                        height { unset }
+                                        textAlign { center }
+                                        color { dto.type.toColorScheme().mainContrast }
+                                        background { color { dto.type.toColorScheme().main } }
+                                        fontSize { "16px" }
+                                        radius { "12px" }
+                                        display { inlineBlock }
+                                        margins { left { "16px" } }
                                     }) {
-                                        text(dto.type.description)
-                                        type {
-                                            dto.type.toColorScheme()
-                                        }
+                                        +dto.type.description
                                     }
                                 }
                             }
