@@ -16,6 +16,7 @@ import dev.fritz2.routing.router
 import dev.fritz2.styling.*
 import dev.fritz2.styling.theme.ColorScheme
 import dev.fritz2.styling.theme.Theme
+import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
